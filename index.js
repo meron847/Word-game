@@ -1,6 +1,24 @@
-const letters = document.querySelectorAll('box')
-async function init() {
 
+const ANSWER_LENGTH = 5;
+
+async function init() {
+    const letters = document.querySelectorAll(".cell");
+
+  let currentGuess ='';
+  let currentRow = '0';
+    function addLetter (letter) {
+        if (currentGuess.length < ANSWER_LENGTH) {
+            //add letters to the end
+            currentGuess += letter;
+        }else {
+            //replace the last letter
+            currentGuess = currentGuess.substring(0, currentGuess.length -1)+ letter;
+        }
+        //show the text in screen 
+        
+
+        letters[currentGuess.length - 1].innerText = letter;
+    }
 
     document.addEventListener('keydown', function handleKeyPress (event){
         const action = event.key;
@@ -8,7 +26,7 @@ async function init() {
         console.log(action);
 
         if (action === 'Enter'){
-            commit();
+            commit();//it used to gueses
         }else if (action === 'Backspace') {
             backspace();
         }else if (isLetter(action)) {
@@ -17,7 +35,8 @@ async function init() {
             //do nothing
         }
     }); 
-
-    
+}
+function isLetter(letter) {
+    return /^[a-zA-Z]$/.test(letter);
 }
 init();
