@@ -12,7 +12,7 @@ body{
 .box {
   display: grid;
   grid-template-columns: repeat(5, 60px);
-  grid-template-rows: repeat(5, 60px); 
+  grid-template-rows: repeat(6, 60px); 
   gap: 5px; 
   margin-top: 60px;
 }
@@ -83,8 +83,5 @@ body{
     }
 }
 .winner {
-    animation: rainbow 4s infinite linear;
-}
-.hidden {
-    visibility: hidden;
+    animation: rain-bow 4s infinite linear;
 }
