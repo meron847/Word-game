@@ -1,7 +1,7 @@
 const ANSWER_LENGTH = 5;
 
 const loadingDiv = document.querySelector(".loading");
-
+const ROUNDS=6;
 
 async function init() {
     const letters = document.querySelectorAll(".cell");
@@ -28,7 +28,9 @@ async function init() {
   const resObj = await res.json();
   const word = resObj.word.toUpperCase();
   const wordparts = word.split("");
+  let done = false;
   setLoading(false);
+  isLoading = false;
 
   console.log(word);
    function addLetter (letter) {
@@ -52,27 +54,76 @@ async function init() {
             //do nothing 
             return;
         }
+        isLoading = true;
+        setLoading(true);
+        const res = await fetch ("https://words.dev-apis.com/validate-word", {
+            method: "POST",
+            body: JSON.stringify({ word: currentGuess })
+        });
+         
+
+        const resObj = await res.json();
+        const validWord = resObj.validWord;
+        //const { validWord } = resObj;same as the above one 
+
+        isLoading = false;
+        setLoading(false);
+
+        if (!validWord) {
+            markInvalidWord();
+            return;
+        }
+       
         const guespart = currentGuess.split("")
-        const workparts = word.split("");
+        const wordparts = word.split("");
+        const map = makeMap(wordparts);
+        
 
         for (let i = 0; i < ANSWER_LENGTH; i++) {
+            //mark as correct
             if (guespart[i] === wordparts[i]){
                 letters[currentRow * ANSWER_LENGTH + i].classList.add("correct");
-            }
-            
+                map[guespart[i]]--;
+            } 
         }
-        //ToDo did they win or lose?
-        currentRow++;
+
+        for (let i= 0; i < ANSWER_LENGTH; i++){
+              if (guespart[i] === wordparts[i]){
+                //do nothing 
+              }else if (wordparts.includes(guespart[i]) && map[guespart[i]] > 0){
+                letters[currentRow * ANSWER_LENGTH + i].classList.add("close");
+                map[guespart[i]]--;
+              }else {
+                 letters[currentRow * ANSWER_LENGTH + i].classList.add("wrong");
+              }
+        }
+           currentRow++;
+            if (currentGuess === word){
+            //win
+            alert('you win');//i am not finished here 
+            done = true;
+            return;
+        }else if (currentRow === ROUNDS) {
+            alert('you lose, the word was ${DUVET}');
+            done = true;
+            return;
+        }
         currentGuess = '';
+     }
+     function markInvalidWord () {
+        alert('not a valid word');
      }
 
      document.addEventListener('keydown', function handleKeyPress (event){
+          if (done || isLoading){
+            //do nothing
+            return;
+          }
+
         const action = event.key;
 
-        
-
         if (action === 'Enter'){
-            commit();//it used to gueses
+            commit();//it used to gueses and enter function 
         }else if (action === 'Backspace') {
             backspace();
         }else if (isLetter(action)) {
@@ -101,5 +152,18 @@ async function init() {
    // i am not sure about this code
    function setLoading(isLoading) {
     loadingDiv.classList.toggle('hidden', !isLoading)
+   }
+
+   function makeMap (array) {
+    const obj = {};
+    for (let i = 0; i< array.length; i++){
+        const letter = array[i]
+        if (obj[letter]){
+            obj[letter]++;
+        } else {
+            obj[letter] = 1;
+        }
+    }
+      return obj;
    }
 init();
